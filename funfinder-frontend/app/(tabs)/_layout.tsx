@@ -25,16 +25,16 @@ const TabsLayout = () => {
     <Tabs.Screen
         name="index"
         options={{
-            title: "Home",
-            tabBarIcon:({color,size})=>(<Ionicons name='home' size={size} color={color}/>)
+            title: "Explore",
+            tabBarIcon:({color,size})=>(<Ionicons name='search' size={size} color={color}/>)
         }}
     />
 
     <Tabs.Screen
-        name="search"
+        name="saved"
         options={{
-            title: "Search",
-            tabBarIcon:({color,size})=>(<Ionicons name='search' size={size} color={color}/>)
+            title: "Saved",
+            tabBarIcon:({color,size})=>(<Ionicons name='bookmark-outline' size={size} color={color}/>)
         }}
     />
 
