@@ -1,6 +1,9 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { Text, StyleSheet, Platform } from 'react-native';
 import { SearchBar } from '@rneui/themed';
 import { SetStateAction, useState } from 'react';
+
+// only renders to areas of the screen that are in view, so no need for padding in search bar
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 
 export default function Index(){
@@ -11,8 +14,9 @@ export default function Index(){
     };
 
     return(
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
             <SearchBar
+                platform = {Platform.OS == 'ios' ? 'ios' : (Platform.OS == 'android' ? 'android' : 'default')}
                 placeholder="Type Here..."
                 onChangeText={updateSearch}
                 value={search}
@@ -24,7 +28,7 @@ export default function Index(){
                 placeholderTextColor="#888"
             />
             <Text style={styles.content}>Home Screen</Text>
-        </View>
+        </SafeAreaView>
     );
 }
 
@@ -41,12 +45,10 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     searchContainer: {
-        flex: 1,
-        justifyContent: "flex-start",
         backgroundColor: 'transparent', // Removes default gray background
         borderTopWidth: 0, // Removes top border line
         borderBottomWidth: 0, // Removes bottom border line
-        paddingTop: 50, // Removes default padding
+        paddingTop: 0, // Removes default padding
     },
     searchInputContainer: {
         backgroundColor: '#f2f2f2', // Light gray box
