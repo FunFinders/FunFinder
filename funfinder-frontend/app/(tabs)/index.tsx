@@ -1,4 +1,4 @@
-import { Text, StyleSheet, Platform } from 'react-native';
+import { Text, StyleSheet, Platform, NativeSyntheticEvent, TextInputSubmitEditingEventData } from 'react-native';
 import { SearchBar } from '@rneui/themed';
 import { SetStateAction, useState } from 'react';
 
@@ -8,10 +8,16 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Index(){
     const [search, setSearch] = useState("");
+    const [test, setText] = useState("Search something to change this text!!");
 
     const updateSearch = (search: SetStateAction<string>) => {
-    setSearch(search);
+        setSearch(search);
     };
+
+    const updateText = (e: { nativeEvent: { text: any; }; }) => {
+        const submittedText = e.nativeEvent.text;
+        setText(submittedText);
+    }
 
     return(
         <SafeAreaView style={styles.container}>
@@ -20,6 +26,7 @@ export default function Index(){
                 placeholder="Type Here..."
                 onChangeText={updateSearch}
                 value={search}
+                onSubmitEditing={updateText}
                 
                 // Styles
                 containerStyle={styles.searchContainer}
@@ -28,6 +35,7 @@ export default function Index(){
                 placeholderTextColor="#888"
             />
             <Text style={styles.content}>Home Screen</Text>
+            <h1>{test}</h1>
         </SafeAreaView>
     );
 }
