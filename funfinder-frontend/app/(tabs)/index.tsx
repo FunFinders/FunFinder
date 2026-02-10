@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'transparent', // Removes default gray background
         borderTopWidth: 0, // Removes top border line
         borderBottomWidth: 0, // Removes bottom border line
-        paddingTop: "10vh", // Removes default padding
+        paddingTop: 50, // Removes default padding
     },
     searchInputContainer: {
         backgroundColor: '#f2f2f2', // Light gray box
