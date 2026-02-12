@@ -1,10 +1,14 @@
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native'
 import React, { useState } from 'react'
 import { Ionicons } from '@expo/vector-icons'
+import { Slider } from '@rneui/themed';
 
 const profile = () => {
   // state to track selected preferences
   const [selectedPreferences, setSelectedPreferences] = useState<string[]>([])
+
+  // state to track rating slider
+  const [rating, setRating] = useState(3);
 
   // toggle pref selection
   const togglePreference = (preference: string) => {
@@ -84,6 +88,28 @@ const profile = () => {
             </Text>
           </TouchableOpacity>
         </View>
+
+        <View style={styles.ratingSection}>
+          <Text style={styles.ratingTitle}>
+            Rating
+          </Text>
+          <Slider
+          value={rating}
+          onValueChange={setRating}
+          minimumValue={1}
+          maximumValue={5}
+          allowTouchTrack={true}
+          step={1}
+          trackStyle={styles.ratingTrack}
+          thumbStyle={styles.ratingThumb}
+          thumbProps={{
+          children: (
+            <Text style={styles.ratingThumbLabel}>
+              {rating}
+            </Text>
+          ),}}
+          />
+        </View>
       </View>
     </ScrollView>
   )
@@ -150,6 +176,36 @@ const styles = StyleSheet.create({
   },
   preferenceTextSelected: {
     color: 'white',
+  },
+  ratingSection: {
+    padding: 20,
+  },
+  ratingTitle: {
+    fontSize: 20,
+    color: '#333',
+  },
+  ratingTrack: {
+    height: 8,
+    borderRadius: 999,
+  },
+  ratingThumb: {
+    height: 20,
+    width: 20,
+    borderRadius: 999,
+    backgroundColor: '#7c5cdb', //color of the circle
+  },
+  ratingThumbLabel: {
+    position: "absolute",
+    fontWeight: 'bold',
+    fontSize: 19,
+    top: -25,
+    width: 40,
+    textAlign: "center",
+  },
+  ratingSideLabel: {
+    width: 40,          // keeps labels aligned
+    textAlign: "center",
+    fontSize: 12,
   },
 })
 

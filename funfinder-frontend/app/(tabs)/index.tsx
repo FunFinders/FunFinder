@@ -1,4 +1,4 @@
-import { Text, StyleSheet, Platform, NativeSyntheticEvent, TextInputSubmitEditingEventData } from 'react-native';
+import { Text, StyleSheet, Platform } from 'react-native';
 import { SearchBar } from '@rneui/themed';
 import { SetStateAction, useState } from 'react';
 
@@ -22,7 +22,8 @@ export default function Index(){
     return(
         <SafeAreaView style={styles.container}>
             <SearchBar
-                platform = {Platform.OS == 'ios' ? 'ios' : (Platform.OS == 'android' ? 'android' : 'default')}
+                platform = {Platform.OS == 'ios' ? 'ios' : 
+                           (Platform.OS == 'android' ? 'android' : 'default')} // makes search work on ios and android
                 placeholder="Type Here..."
                 onChangeText={updateSearch}
                 value={search}
@@ -35,7 +36,7 @@ export default function Index(){
                 placeholderTextColor="#888"
             />
             <Text style={styles.content}>Home Screen</Text>
-            <h1>{test}</h1>
+            <Text>{test}</Text>
         </SafeAreaView>
     );
 }
