@@ -1,7 +1,7 @@
 import { Text, StyleSheet, Platform } from 'react-native';
 import { SearchBar } from '@rneui/themed';
-import { SetStateAction, useState } from 'react';
-
+import { SetStateAction, useState, useEffect } from 'react';
+import * as Location from 'expo-location';
 // only renders to areas of the screen that are in view, so no need for padding in search bar
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -17,6 +17,33 @@ export default function Index(){
     const updateText = (e: { nativeEvent: { text: any; }; }) => {
         const submittedText = e.nativeEvent.text;
         setText(submittedText);
+    }
+
+    const [location, setLocation] = useState<Location.LocationObject | null>(null);
+    const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+    // gets location data
+    useEffect(() => {
+        async function getCurrentLocation() {
+        
+        let { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+            setErrorMsg('Permission to access location was denied');
+            return;
+        }
+
+        let location = await Location.getCurrentPositionAsync({});
+        setLocation(location);
+        }
+
+        getCurrentLocation();
+    }, []);
+
+    let text = 'Waiting...';
+    if (errorMsg) {
+        text = errorMsg;
+    } else if (location) {
+        text = `Latitude: ${location.coords.latitude}, Longitude: ${location.coords.longitude}`;
     }
 
     return(
@@ -37,6 +64,7 @@ export default function Index(){
             />
             <Text style={styles.content}>Home Screen</Text>
             <Text>{test}</Text>
+            <Text>{text}</Text>
         </SafeAreaView>
     );
 }
