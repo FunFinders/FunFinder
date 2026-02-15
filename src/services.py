@@ -1,9 +1,9 @@
 from googleapiclient.discovery import build
 from googleapiclient.http import HttpError
-from src.data import Coordinates
+from .data import Coordinates
 import os
 import math
-import sqlite3
+
 
 MILE = 1609  # in meters
 

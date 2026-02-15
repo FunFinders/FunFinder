@@ -4,6 +4,7 @@ import random
 from googleapiclient.http import HttpError
 from src.services import *
 from src.data import Coordinates, Price
+from src.database import *
 from json import load, dumps
 
 def tryExecute(request):
@@ -14,30 +15,36 @@ def tryExecute(request):
         return {"status": error.status_code, "details": error.error_details, "request_json": request.to_json()}
 
 def add_opening_hours(database, times, place_id):
-    if times is None:
+    if times is None or get_hours(database, place_id):
         return
+
     cursor = database.cursor()
-    QUERY = """INSERT INTO OpeningHours (place_id, monday, tuesday, wednesday, thursday, friday, saturday, sunday) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"""
+    QUERY = """
+        INSERT INTO OpeningHours (place_id, monday, tuesday, wednesday, thursday, friday, saturday, sunday) 
+        VALUES (:place_id, :monday, :tuesday, :wednesday, :thursday, :friday, :saturday, :sunday)
+        """
     opening_hours = times.get("weekdayDescriptions")
     open_times = {}
     for hours in opening_hours:
         i = hours.split(": ")
         open_times[i[0].lower()] = i[1].strip().lower()
-    time_tuple = (
-        place_id,
-        open_times["monday"],
-        open_times["tuesday"],
-        open_times["wednesday"],
-        open_times["thursday"],
-        open_times["friday"],
-        open_times["saturday"],
-        open_times["sunday"]
-        )
-    cursor.execute(QUERY, time_tuple)
+    open_times["place_id"] = place_id
+    cursor.execute(QUERY, open_times)
 
 def add_place(database, place_data):
+    query = ""
     cursor = database.cursor()
-    QUERY = """INSERT INTO Places (place_id, display_name, primary_type_display_name, rating, primary_type, place_types, price, formatted_address, longitude, latitude, website, phone_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+    if not get_place(database, place_id):
+        QUERY = """
+        INSERT OR IGNORE INTO Places (place_id, display_name, primary_type_display_name, rating, primary_type, place_types, price, formatted_address, longitude, latitude, website, phone_number) 
+        VALUES (:place_id, :display_name, :primary_type_display_name, :rating, :primary_type, :place_types, :price, :formatted_address, :longitude, :latitude, :website, :phone_number)
+        """
+    else:
+        QUERY = """
+        UPDATE Places
+        SET place_id=:place_id, display_name=:display_name, primary_type_display_name=:primary_type_display_name, rating=:rating, primary_type=:primary_type, place_types=:place_types, price=:price, formatted_address=:formatted_address, longitude=:longitude, latitude=:latitude, website=:website, phone_number=:phone_number
+        WHERE place_id=:place_id
+    """
     place_id = place_data.get("id")
     display_name = place_data.get("displayName")
     if display_name:
@@ -48,10 +55,10 @@ def add_place(database, place_data):
     primary_type = place_data.get("primaryType")
     types = ",".join(place_data.get("types"))
     rating = place_data.get("rating")
-    price_str = place_data.get("price")
+    price_str = place_data.get("priceLevel")
     price = None
     if price_str:
-        price = Price[price_str]
+        price = Price[price_str].value
     formatted_address = place_data.get("formattedAddress")
     location = place_data.get("location")
     latitude = location["latitude"]
@@ -59,21 +66,21 @@ def add_place(database, place_data):
     website = place_data.get("websiteUri")
     phoneNumber = place_data.get("nationalPhoneNumber")
     openingHours = place_data.get("regularOpeningHours")
-    place_tuple = (
-        place_id,
-        display_name,
-        ptdn,
-        rating,
-        primary_type,
-        types,
-        price,
-        formatted_address,
-        longitude,
-        latitude,
-        website,
-        phoneNumber
-    )
-    cursor.execute(QUERY, place_tuple)
+    place_data = {
+        "place_id": place_id,
+        "display_name": display_name,
+        "primary_type_display_name": ptdn,
+        "rating": rating,
+        "primary_type": primary_type,
+        "place_types": types,
+        "price": price,
+        "formatted_address": formatted_address,
+        "longitude": longitude,
+        "latitude": latitude,
+        "website": website,
+        "phone_number": phoneNumber
+    }
+    cursor.execute(QUERY, place_data)
     add_opening_hours(database, openingHours, place_id)
 
 def build_database():
@@ -132,7 +139,7 @@ def build_database():
             print(dumps(data, indent=4))
         if type(data) is dict:
             add_place(placeDB, data)
-    time.sleep(0.5)
+        time.sleep(0.5)
     placeDB.commit()
     placeDB.close()
 
