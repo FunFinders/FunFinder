@@ -10,6 +10,9 @@ const profile = () => {
   // state to track rating slider
   const [rating, setRating] = useState(3);
 
+  // state to track price slider
+  const [price, setPrice] = useState(3);
+
   // toggle pref selection
   const togglePreference = (preference: string) => {
     if (selectedPreferences.includes(preference)) {
@@ -110,7 +113,33 @@ const profile = () => {
           ),}}
           />
         </View>
+
+        <View style={styles.ratingSection}>
+          <Text style={styles.ratingTitle}>
+            Price
+          </Text>
+          <Slider
+          value={price}
+          onValueChange={setPrice}
+          minimumValue={1}
+          maximumValue={5}
+          allowTouchTrack={true}
+          step={1}
+          trackStyle={styles.ratingTrack}
+          thumbStyle={styles.ratingThumb}
+          thumbProps={{
+          children: (
+            <Text style={styles.ratingThumbLabel}>
+              {price}
+            </Text>
+          ),}}
+          />
+        </View>
+
+
       </View>
+
+
     </ScrollView>
   )
 }
