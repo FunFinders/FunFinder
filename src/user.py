@@ -18,11 +18,11 @@ def store_user(user_filename, user: UserModel):
     user_json = {
         "id": user.id,
         "saved": user.visited,
-        "preferred_types": list[user.preferred_types],
+        "preferred_types": list(user.preferred_types),
         "liked_places": user.liked_places,
         "visited": user.visited
     }
 
-    with open(user_filename) as file:
+    with open(user_filename, "w") as file:
         dump(user_json, file)
     return user
