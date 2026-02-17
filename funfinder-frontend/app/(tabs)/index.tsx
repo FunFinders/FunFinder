@@ -1,9 +1,39 @@
-import { Text, StyleSheet, Platform } from 'react-native';
+import { Text, StyleSheet, Platform, FlatList } from 'react-native';
 import { SearchBar } from '@rneui/themed';
 import { SetStateAction, useState, useEffect } from 'react';
 import * as Location from 'expo-location';
 // only renders to areas of the screen that are in view, so no need for padding in search bar
 import { SafeAreaView } from 'react-native-safe-area-context';
+import PlaceCard from '../components/placecards';
+
+
+const test_places = [
+{
+    id: '1',
+    name: 'Sushi Place',
+    rating: 4.5,
+    priceLevel: 3,
+},
+{
+    id: '2',
+    name: 'Pizza Place',
+    rating: 4.0,
+    priceLevel: 2,
+},
+{
+    id: '3',
+    name: 'Burger Place',
+    rating: 3.5,
+    priceLevel: 1,
+},
+{  
+    id: '4',
+    name: 'Fancy Shmancy',
+    rating: 4.8,
+    priceLevel: 4,
+}
+];
+
 
 
 export default function Index(){
@@ -46,6 +76,21 @@ export default function Index(){
         text = `Latitude: ${location.coords.latitude}, Longitude: ${location.coords.longitude}`;
     }
 
+    const handlePlacePress = (placeId: string) => {
+        console.log('Place pressed:', placeId);
+    };
+
+    const renderPlaceCard = ({ item }: { item: typeof test_places[0] }) => (
+        <PlaceCard
+            id={item.id}
+            name={item.name}
+            rating={item.rating}
+            priceLevel={item.priceLevel}
+            onPress={() => handlePlacePress(item.id)}
+        />
+    );
+
+
     return(
         <SafeAreaView style={styles.container}>
             <SearchBar
@@ -62,7 +107,14 @@ export default function Index(){
                 inputStyle={styles.searchInput}
                 placeholderTextColor="#888"
             />
-            <Text style={styles.content}>Home Screen</Text>
+            <Text style={styles.content}>Explore</Text>
+            <FlatList
+                data={test_places}
+                renderItem={renderPlaceCard}
+                keyExtractor={(item) => item.id}
+                contentContainerStyle={styles.listContent}
+                showsVerticalScrollIndicator={false}
+            />
             <Text>{test}</Text>
             <Text>{text}</Text>
         </SafeAreaView>
@@ -74,6 +126,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+        
     },
     content:{   
         flex: 1,
@@ -95,6 +148,9 @@ const styles = StyleSheet.create({
     searchInput: {
         color: '#000', // Text color
         fontSize: 16,
+    },
+    listContent: {
+        paddingVertical: 6,
     },
 
 });
