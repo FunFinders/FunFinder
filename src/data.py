@@ -1,6 +1,7 @@
 from collections import namedtuple
 from enum import Enum
 import typing
+import json
 
 class Price(Enum):
     PRICE_LEVEL_FREE = 0
@@ -54,7 +55,52 @@ class Place:
 class UserModel:
     def __init__(self):
         self.id: str = ""
-        self.saved: list[Place] = []
+        self.saved: list[Place] = set()
         self.preferred_types: set[str] = set()
         self.liked_places: list[Place] = []
         self.visited: list[Place] = []
+    
+    def add_visited(self, place):
+        self.visited.append(place)
+
+    def add_preferred_type(self, type):
+        self.preferred_types.add(type)
+
+    def add_liked_place(self, place):
+        self.liked_places.append(place)
+
+    def add_saved(self, place):
+        self.saved.append(place)
+
+    def remove_visited(self, place_id):
+        for i, place in enumerate(self.visited):
+            if place.id == place_id:
+                self.visited.pop(i)
+                break
+
+    def remove_preferred_type(self, type):
+        try:
+            self.preferred_types.remove(type)
+        except KeyError:
+            pass
+
+    def remove_liked_place(self, place_id):
+        for i, place in enumerate(self.liked_places):
+            if place.id == place_id:
+                self.liked_places.pop(i)
+                break
+
+    def remove_saved(self, place_id):
+        for i, place in enumerate(self.saved):
+            if place.id == place_id:
+                self.saved.pop(i)
+                break
+        
+    def to_json(self) -> dict:
+        user_obj = {"id": self.id,
+                    "saved": self.saved,
+                    "liked_places": self.liked_places,
+                    "preferred_types": self.preferred_types,
+                    "visited": self.visited,
+        }
+        return user_obj

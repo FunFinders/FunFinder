@@ -1,4 +1,4 @@
-from .data import OpeningHours, Place
+from data import OpeningHours, Place
 from math import isclose
 import typing
 
@@ -40,25 +40,27 @@ def filter_price(min=0, max=4):
 def filter_type_disjunctive(types: list[str] | str):
     if type(types) is str:
         return f"instr(place_types, {types})"
-    return " OR ".join((f"instr(place_types, {tag})" for tag in types))
+    return " OR ".join((f"instr(place_types, \"{tag}\") > 0" for tag in types))
 
 def filter_type_conjunctive(types: list[str] | str):
     if type(types) is str:
         return f"instr(place_types, {types})"
-    return " AND ".join((f"instr(place_types, {tag})" for tag in types))
+    return " AND ".join((f"instr(place_types, \"{tag}\") > 0" for tag in types))
 
 def filter_rating(min: float=1.0, max: float=5.0):
-    if min < 1.0:
-        min = 1.0
-
-    if min > 5.0:
-        min = 5.0
-
-    if max > 5.0:
-        max = 5.0
-
     if min > max:
-        max = min
+        raise ValueError("min is greater than max")
+    # if min < 1.0:
+    #     min = 1.0
+
+    # if min > 5.0:
+    #     min = 5.0
+
+    # if max > 5.0:
+    #     max = 5.0
+
+    # if min > max:
+    #     max = min
 
     QUERY = ""
     if not isclose(min, 1.0):
@@ -71,3 +73,11 @@ def filter_rating(min: float=1.0, max: float=5.0):
 
 def filter_():
     pass
+
+
+if __name__ == "__main__":
+    query = search_places()
+    calls = [filter_rating(2.2, 3.0), filter_type_conjunctive(["restaurant", "mexican_restaurant"]),
+             filter_price(0, 2)]
+    # print("\t\nAND ".join(call for call in calls if call != ""))
+    print(query, "WHERE", " AND ".join(f"({call})" for call in calls if call != ""))
