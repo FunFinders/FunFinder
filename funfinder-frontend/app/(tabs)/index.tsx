@@ -1,44 +1,20 @@
 import { Text, StyleSheet, Platform, FlatList } from 'react-native';
 import { SearchBar } from '@rneui/themed';
-import { SetStateAction, useState, useEffect } from 'react';
+import { SetStateAction, useState, useEffect, use } from 'react';
 import * as Location from 'expo-location';
 // only renders to areas of the screen that are in view, so no need for padding in search bar
 import { SafeAreaView } from 'react-native-safe-area-context';
 import PlaceCard from '../components/placecards';
 
 
-const test_places = [
-{
-    id: '1',
-    name: 'Sushi Place',
-    rating: 4.5,
-    priceLevel: 3,
-},
-{
-    id: '2',
-    name: 'Pizza Place',
-    rating: 4.0,
-    priceLevel: 2,
-},
-{
-    id: '3',
-    name: 'Burger Place',
-    rating: 3.5,
-    priceLevel: 1,
-},
-{  
-    id: '4',
-    name: 'Fancy Shmancy',
-    rating: 4.8,
-    priceLevel: 4,
-}
-];
-
+const API_URL = 'http://11.20.8.35:5000';
 
 
 export default function Index(){
     const [search, setSearch] = useState("");
     const [test, setText] = useState("Search something to change this text!!");
+    const [places, setPlaces] = useState([]);
+
 
     const updateSearch = (search: SetStateAction<string>) => {
         setSearch(search);
@@ -51,6 +27,21 @@ export default function Index(){
 
     const [location, setLocation] = useState<Location.LocationObject | null>(null);
     const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+    // fetch from backend
+    useEffect(() => {
+        fetch(`${API_URL}/places`)
+            .then(response => response.json())
+            .then(data => {
+                setPlaces(data);
+                console.log('Fetched places:', data);
+
+            })
+            .catch(error => {
+                console.error('Error fetching places:', error);
+            });
+    }, []);
+
 
     // gets location data
     useEffect(() => {
@@ -80,7 +71,7 @@ export default function Index(){
         console.log('Place pressed:', placeId);
     };
 
-    const renderPlaceCard = ({ item }: { item: typeof test_places[0] }) => (
+    const renderPlaceCard = ({ item }: any) => (
         <PlaceCard
             id={item.id}
             name={item.name}
@@ -109,7 +100,7 @@ export default function Index(){
             />
             <Text style={styles.content}>Explore</Text>
             <FlatList
-                data={test_places}
+                data={places}
                 renderItem={renderPlaceCard}
                 keyExtractor={(item) => item.id}
                 contentContainerStyle={styles.listContent}
