@@ -39,17 +39,17 @@ class OpeningHours:
 
 class Place:
     def __init__(self, place_data: tuple):
-        self.id = place_data[0]
-        self.display_name = place_data[1]
-        self.pt_display = place_data[2]
-        self.rating = place_data[3]
-        self.primary_type = place_data[4]
-        self.types = set(place_data[5].split(","))
-        self.price = place_data[6]
-        self.address = place_data[7]
+        self.id: str = place_data[0]
+        self.display_name: str = place_data[1]
+        self.pt_display: str = place_data[2]
+        self.rating: float = place_data[3]
+        self.primary_type: str = place_data[4]
+        self.types: set[str] = set(place_data[5].split(","))
+        self.price: Price = Price(place_data[6])
+        self.address: str = place_data[7]
         self.coordinates: Coordinates = Coordinates(longitude=place_data[8], latitude=place_data[9])
-        self.website = place_data[10]
-        self.phone_number = place_data[11]
+        self.website: str = place_data[10]
+        self.phone_number: str = place_data[11]
 
 
 class UserModel:
