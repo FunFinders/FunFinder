@@ -15,6 +15,24 @@ def weight_distance(place: Place, origin: Coordinates):
     distance = geopy.distance.distance(place.coordinates, origin).km
     return (tanh(distance) + 1) * 2  # some smoothing function
 
+# like rank_visited, but for liked places
+def rank_liked(place: Place, user: UserModel, location: Coordinates = None):
+    type_occurs = defaultdict(int)
+    total_types = 0
+    for place in user.liked_places:
+        total_types += len(place.types)
+        for type in place.types:
+            type_occurs[type] += 1
+    for key, value in type_occurs.items():
+        type_occurs[key] = value / total_types
+    weight = 0
+    for place_type in place.types:
+        if place_type is place.primary_type and place_type in type_occurs:
+            weight += WEIGHT_PRIMARY
+        elif place_type in type_occurs:
+            weight += WEIGHT_SUBTYPE
+    return (weight, place)
+
 # primary type gets the most weight, followed by other place types; averaged
 # rating scales weight
 # distance is added to final weight
@@ -34,6 +52,7 @@ def rank_rule(places: list[Place], user: UserModel, location: Coordinates = None
                 # weight += WEIGHT_SUBTYPE / (1 + len(user.preferred_types))  # little softer + average
             elif type == place.primary_type:
                 weight += WEIGHT_PRIMARY
+        weight += rank_liked(place, user, location)
         weight *= scale
         weight += weight_distance(place, location)
         place_weights.append((weight, place))
@@ -66,6 +85,8 @@ def rank_history(places: list[Place], user: UserModel, location: Coordinates = N
             if type is place.primary_type:
                 val *= 2
             weight += val
+        
+        weight += rank_liked(place, user, location)
         if place.rating is not None:
             weight *= log(place.rating + 1)  # product after the fact
         weight += weight_distance(place, location)
