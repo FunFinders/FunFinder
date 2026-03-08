@@ -68,7 +68,7 @@ def rank_history(places: list[Place], user: UserModel, location: Coordinates = N
     total_types = 0
     type_occurs = defaultdict(int)
     i = 0
-    for place in user.visited:
+    for place in user.visited[::-1]:
         i += 1
         total_types += len(place.types)
         for type in place.types:
