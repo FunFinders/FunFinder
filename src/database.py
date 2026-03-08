@@ -10,6 +10,8 @@ def get_place(database, place_id):
     """
     params = {"place_id": place_id}
     place_tuple = cursor.execute(QUERY, params).fetchone()
+    if place_tuple is None:
+        raise ValueError(f"place_id({place_id}) is not a valid place")
     return Place(place_tuple)
 
 def get_hours(database, place_id):
@@ -19,6 +21,8 @@ def get_hours(database, place_id):
     """
     params = {"place_id": place_id}
     hours_tuple = cursor.execute(QUERY, params).fetchone()
+    if hours_tuple is None:
+        raise ValueError(f"place_id ({place_id}) is not present in Hours")
     return OpeningHours(hours_tuple)
 
 def search_places():
