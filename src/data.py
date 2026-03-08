@@ -98,7 +98,7 @@ class Place:
         self.rating: float = place_data[3]
         self.primary_type: str = place_data[4]
         self.types: set[str] = set(place_data[5].split(","))
-        self.price: Price = Price(place_data[6])
+        self.price: Price = Price(place_data[6]) if place_data[6] else None
         self.address: str = place_data[7]
         self.coordinates: Coordinates = Coordinates(longitude=place_data[8], latitude=place_data[9])
         self.website: str = place_data[10]
