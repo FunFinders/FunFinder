@@ -15,27 +15,67 @@ Coordinates = namedtuple("Coordinates", "latitude longitude")
 class TimeInterval:
     # "open 24 hours" --> encompass entire time range
     # "closed" --> empty
+    # Measures time within a day in seconds; 0 - 24 * 3600
     def __init__(self, start, end):
         self.start, self.end = start, end
+
+    def  __contains__(self, time):
+        return self.start < time and self.end > time
+
+    def __str__(self):
+        return f"{self.start // 3600:>2}:{self.start % 3600:0<2} - {self.end // 3600:>2}:{self.end % 3600:0<2}"
 
 
 class OpeningHours:
     # open times are listed, assume closed otherwise
     def __init__(self, open_times):
         def process_times(time_str):
+            def time_to_int(time_str):
+                clock_time, half = time_str.split(" ")
+                time = 0
+                if half == "pm":
+                    time = 12 * 3600
+                hours, minutes = clock_time.split(":")
+                time += int(hours) * 3600 + int(minutes) * 60
+                return time
+
             open_times = []
+            if time_str == "closed":
+                return open_times
+            elif time_str == "open 24 hours":
+                open_times.append(TimeInterval(0, 24 * 3600))
+                return open_times
             for interval in time_str.split(", "):
-                # process
-                pass
+                begin, end = interval.split(" – ")
+                begin_time = time_to_int(begin)
+                end_time = time_to_int(end)
+                if "pm" in end and "am" not in begin:
+                    begin_time += 12 * 3600
+                open_times.append(TimeInterval(begin_time, end_time))
+            return open_times
 
-        self.monday =    process_times(open_times[0])
-        self.tuesday =   process_times(open_times[1])
-        self.wednesday = process_times(open_times[2])
-        self.thursday =  process_times(open_times[3])
-        self.friday =    process_times(open_times[4])
-        self.saturday =  process_times(open_times[5])
-        self.sunday =    process_times(open_times[6])
+        self.monday:    list[TimeInterval] = process_times(open_times[0])
+        self.tuesday:   list[TimeInterval] = process_times(open_times[1])
+        self.wednesday: list[TimeInterval] = process_times(open_times[2])
+        self.thursday:  list[TimeInterval] = process_times(open_times[3])
+        self.friday:    list[TimeInterval] = process_times(open_times[4])
+        self.saturday:  list[TimeInterval] = process_times(open_times[5])
+        self.sunday:    list[TimeInterval] = process_times(open_times[6])
 
+    def open(self, time: int, day: str):
+        return any((time in interval for interval in self.__getattribute__("day")))
+
+    def to_json(self):
+        return {
+            "monday": self.monday,
+            "tuesday": self.tuesday,
+            "wednesday": self.wednesday,
+            "thursday": self.thursday,
+            "friday": self.friday,
+            "saturday": self.saturday,
+            "sunday": self.sunday,
+        }
+    
 
 class Place:
     def __init__(self, place_data: tuple):

@@ -1,5 +1,6 @@
-from data import OpeningHours, Place
+from .data import OpeningHours, Place
 from math import isclose
+import sqlite3
 import typing
 
 def get_place(database, place_id):
@@ -74,6 +75,11 @@ def filter_rating(min: float=1.0, max: float=5.0):
 def filter_():
     pass
 
+def execute_query(query): 
+    cnnx = sqlite3.connect("places.db")
+    cursor = cnnx.cursor()
+    result = cnnx.execute(query)
+    return result
 
 if __name__ == "__main__":
     query = search_places()
