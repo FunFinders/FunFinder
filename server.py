@@ -2,18 +2,40 @@ from flask import Flask, jsonify
 from flask_cors import CORS  # Add this import
 from src.data import UserModel, Place
 from src.recommendation import rank_places
-from src.user import get_user
+from src.user import get_user, store_user
+import src.database
 import sqlite3
 
 # use jsonify
 # make_response ... .set_cookie(key, value)?
 # request.cookies?
+ACTIVE_USERS = {}
+
+def _load_user(id="123"):
+    user = UserModel()
+    return get_user("user.json", user)
+
+def _get_user(id="123"):
+    if id in ACTIVE_USERS:
+        return ACTIVE_USERS[id]
+    else:
+        try:
+            user = _load_user()
+        except:
+            user = create_user()
+        ACTIVE_USERS[user.id] = user
+        return user
+
 
 app = Flask(__name__)
 CORS(app)
+# TODO: add ways to filter places
 @app.route("/places", methods=['GET'])
-
 def get_places():
+    # The main group of places to display to the user. Contains basic information
+    # about the place and allows enough information to get more detailed information
+    # or perform operations with the user and the place. 
+
     # connect to database
     conn = sqlite3.connect("places.db")
     cursor = conn.cursor()
@@ -23,8 +45,13 @@ def get_places():
     places = [Place(x) for x in req]
 
     # get user preferences
-    user = UserModel()
-    user = get_user("user.json", user)
+    user = _get_user()
+    # if len(ACTIVE_USERS) == 0:
+    #     user = UserModel()
+    #     user = get_user("user.json", user)
+    #     ACTIVE_USERS[user.id] = user
+    # else:
+    #     user = ACTIVE_USERS["123"]
 
     # rank it baby
     ranking = rank_places(places, user)
@@ -41,7 +68,7 @@ def get_places():
             "rating":place.rating,
             "priceLevel":place.price
         })
-    
+
     conn.close()
     return jsonify(places_json)
 
@@ -49,34 +76,73 @@ if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5000)
 
 
+@app.route("/place/<place_id>")
+def _get_place(place_id):
+    place_db = sqlite3.connect("places.db")
+    place = src.database.get_place(place_db, place_id)
+    place_json = {
+        "id":place.id,
+        "name":place.display_name,
+        "rating":place.rating,
+        "priceLevel":place.price,
+        "primaryType": place.pt_display,
+        "types": list(place.types),
+        "priceLevel": place.price.value,
+        "address": place.address,
+        "website": place.website,
+        "phone_number": place.phone_number
+    }
+    return jsonify(place_json)
 
-# def get_user():
-#     pass
+# For use in displaying open time
+@app.route("/place/<place_id>/time")
+def _get_place_time(place_id):
+    place_db = sqlite3.connect("places.db")
+    hours = src.database.get_hours(place_db, place_id)
+    return jsonify(hours.to_json())
 
-# @app.route("/...")
-# def get_places():
-#     pass
+def create_user():
+    user = UserModel()
+    user.id = "123"
+    store_user("user.json", user)
+    return user
 
-# @app.route("/...")
-# def get_place():
-#     pass
+@app.route("/save/<place_id>")
+def add_saved(place_id):
+    user = _get_user()
+    try:
+        conn = sqlite3.connect("places.db")
+        place = src.database.get_place(conn, place_id)
+        user.add_saved(place)
+        store_user("user.json", user)
+        return jsonify({"result": "Success"})
+    except ValueError as e:
+        return jsonify({"result": "ValueError", "errorMessage": str(e)})
 
-# @app.route("/...")
-# def store_user():
-#     pass
+@app.route("/like/<place_id>")
+def add_liked(place_id):
+    user = _get_user()
+    try:
+        conn = sqlite3.connect("places.db")
+        place = src.database.get_place(conn, place_id)
+        user.add_liked_place(place)
+        store_user("user.json", user)
+        return jsonify({"result": "Success"})
+    except ValueError as e:
+        return jsonify({"result": "ValueError", "errorMessage": str(e)})
 
-# @app.route("/...")
-# def create_user():
-#     pass
+@app.route("/visit/<place_id>")
+def add_visited(place_id):
+    user = _get_user()
+    try:
+        conn = sqlite3.connect("places.db")
+        place = src.database.get_place(conn, place_id)
+        user.add_visited(place)
+        store_user("user.json", user)
+        return jsonify({"result": "Success"})
+    except ValueError as e:
+        return jsonify({"result": "ValueError", "errorMessage": str(e)})
 
-# @app.route("/...")
-# def add_saved
-
-# @app.route("/...")
-# def add_liked
-
-# @app.route("/...")
-# def add_visited
 
 # @app.route("/...")
 # def add_preferred_type
