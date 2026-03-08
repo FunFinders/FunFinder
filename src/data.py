@@ -53,7 +53,8 @@ class OpeningHours:
                     begin_time += 12 * 3600
                 open_times.append(TimeInterval(begin_time, end_time))
             return open_times
-
+        
+        # For use in time checking
         self.monday:    list[TimeInterval] = process_times(open_times[0])
         self.tuesday:   list[TimeInterval] = process_times(open_times[1])
         self.wednesday: list[TimeInterval] = process_times(open_times[2])
@@ -62,18 +63,30 @@ class OpeningHours:
         self.saturday:  list[TimeInterval] = process_times(open_times[5])
         self.sunday:    list[TimeInterval] = process_times(open_times[6])
 
-    def open(self, time: int, day: str):
-        return any((time in interval for interval in self.__getattribute__("day")))
+        # For use in frontend
+        self._monday:    str = open_times[0]
+        self._tuesday:   str = open_times[1]
+        self._wednesday: str = open_times[2]
+        self._thursday:  str = open_times[3]
+        self._friday:    str = open_times[4]
+        self._saturday:  str = open_times[5]
+        self._sunday:    str = open_times[6]
+
+    def is_open(self, time: int, day: str):
+        for interval in self.__getattribute__(day):
+            if time in interval:
+                return interval
+        # return any((time in interval for interval in self.__getattribute__(day)))
 
     def to_json(self):
         return {
-            "monday": self.monday,
-            "tuesday": self.tuesday,
-            "wednesday": self.wednesday,
-            "thursday": self.thursday,
-            "friday": self.friday,
-            "saturday": self.saturday,
-            "sunday": self.sunday,
+            "monday": self._monday,
+            "tuesday": self._tuesday,
+            "wednesday": self._wednesday,
+            "thursday": self._thursday,
+            "friday": self._friday,
+            "saturday": self._saturday,
+            "sunday": self._sunday,
         }
     
 
@@ -91,11 +104,16 @@ class Place:
         self.website: str = place_data[10]
         self.phone_number: str = place_data[11]
 
+    def to_json(self):
+        return self.id
+
+    def __eq__(self, other):
+        return type(other) is str and self.id == other or type(other) is Place and self.id == other.id
 
 class UserModel:
     def __init__(self):
         self.id: str = ""
-        self.saved: list[Place] = set()
+        self.saved: list[Place] = []
         self.preferred_types: set[str] = set()
         self.liked_places: list[Place] = []
         self.visited: list[Place] = []
@@ -107,9 +125,13 @@ class UserModel:
         self.preferred_types.add(type)
 
     def add_liked_place(self, place):
+        if place.id in (x.id for x in self.liked_places):
+            return
         self.liked_places.append(place)
 
     def add_saved(self, place):
+        if place.id in (x.id for x in self.saved):
+            return
         self.saved.append(place)
 
     def remove_visited(self, place_id):
@@ -138,9 +160,9 @@ class UserModel:
         
     def to_json(self) -> dict:
         user_obj = {"id": self.id,
-                    "saved": self.saved,
-                    "liked_places": self.liked_places,
-                    "preferred_types": self.preferred_types,
-                    "visited": self.visited,
+                    "saved": [x.to_json() for x in self.saved],
+                    "liked_places": [x.to_json() for x in self.liked_places],
+                    "preferred_types": list(self.preferred_types),
+                    "visited": [x.to_json() for x in self.visited],
         }
         return user_obj
