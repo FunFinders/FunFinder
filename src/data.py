@@ -134,29 +134,30 @@ class UserModel:
             return
         self.saved.append(place)
 
-    def remove_visited(self, place_id):
-        for i, place in enumerate(self.visited):
-            if place.id == place_id:
-                self.visited.pop(i)
-                break
+    # def remove_visited(self, place_id):
+    #     for i, place in enumerate(self.visited):
+    #         if place.id == place_id:
+    #             self.visited.pop(i)
+    #             break
+    def remove_visited(self, index):
+        self.visited.pop(index)
 
     def remove_preferred_type(self, type):
-        try:
-            self.preferred_types.remove(type)
-        except KeyError:
-            pass
+        self.preferred_types.remove(type)
 
     def remove_liked_place(self, place_id):
         for i, place in enumerate(self.liked_places):
             if place.id == place_id:
                 self.liked_places.pop(i)
                 break
+        raise KeyError(place_id)
 
     def remove_saved(self, place_id):
         for i, place in enumerate(self.saved):
             if place.id == place_id:
                 self.saved.pop(i)
                 break
+        raise KeyError(place_id)
         
     def to_json(self) -> dict:
         user_obj = {"id": self.id,
