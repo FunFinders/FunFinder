@@ -143,21 +143,53 @@ def add_visited(place_id):
     except ValueError as e:
         return jsonify({"result": "ValueError", "errorMessage": str(e)})
 
+@app.route("/add_preference/<type>")
+def add_preferred_type(type):
+    user = _get_user()
+    user.add_preferred_type(type)
+    store_user("user.json", user)
+    return jsonify({"result": "Success"})
 
-# @app.route("/...")
-# def add_preferred_type
+@app.route("/unsave/<place_id>")
+def remove_saved(place_id):
+    user = _get_user()
+    try:
+        user.remove_saved(place_id)
+        store_user("user.json")
+        return jsonify({"result": "Success"})
+    except KeyError as e:
+        return jsonify({"result": "KeyError", "errorMessage": str(e)})
 
-# @app.route("/...")
-# def remove_saved
+@app.route("/unlike/<place_id>")
+def remove_liked(place_id):
+    user = _get_user()
+    try:
+        user.remove_liked_place(place_id)
+        store_user("user.json")
+        return jsonify({"result": "Success"})
+    except KeyError as e:
+        return jsonify({"result": "KeyError", "errorMessage": str(e)})
 
-# @app.route("/...")
-# def remove_liked
+# because visit is a history
+@app.route("/unvisit/<index>")
+def remove_visited(index):
+    user = _get_user()
+    try:
+        user.remove_visited(index)
+        store_user("user.json")
+        return jsonify({"result": "Success"})
+    except IndexError as e:
+        return jsonify({"result": "KeyError", "errorMessage": str(e)})
 
-# @app.route("/...")
-# def remove_visited
-
-# @app.route("/...")
-# def remove_preferred_type
+@app.route("/remove_preference/<type>")
+def remove_preferred_type(type):
+    user = _get_user()
+    try:
+        user.remove_preferred_type(type)
+        store_user("user.json", user)
+        return jsonify({"result": "Success"})
+    except KeyError as e:
+        return jsonify({"result": "KeyError", "errorMessage": str(e)})
 
 # @app.route("/...")
 # def get_recommendation
