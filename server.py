@@ -40,6 +40,10 @@ def get_places():
     conn = sqlite3.connect("places.db")
     cursor = conn.cursor()
 
+    # create the query from the filters
+    # for rating, add small deviation to provided parameters to allow small exploration
+    # 
+
     # list of places
     req = cursor.execute("select * from places")
     places = [Place(x) for x in req]
@@ -107,7 +111,7 @@ def create_user():
     store_user("user.json", user)
     return user
 
-@app.route("/save/<place_id>")
+@app.route("/save/<place_id>", methods=["POST"])
 def add_saved(place_id):
     user = _get_user()
     try:
@@ -119,7 +123,7 @@ def add_saved(place_id):
     except ValueError as e:
         return jsonify({"result": "ValueError", "errorMessage": str(e)})
 
-@app.route("/like/<place_id>")
+@app.route("/like/<place_id>", methods=["POST"])
 def add_liked(place_id):
     user = _get_user()
     try:
@@ -131,7 +135,7 @@ def add_liked(place_id):
     except ValueError as e:
         return jsonify({"result": "ValueError", "errorMessage": str(e)})
 
-@app.route("/visit/<place_id>")
+@app.route("/visit/<place_id>", methods=["POST"])
 def add_visited(place_id):
     user = _get_user()
     try:
@@ -143,14 +147,14 @@ def add_visited(place_id):
     except ValueError as e:
         return jsonify({"result": "ValueError", "errorMessage": str(e)})
 
-@app.route("/add_preference/<type>")
+@app.route("/add_preference/<type>", methods=["POST"])
 def add_preferred_type(type):
     user = _get_user()
     user.add_preferred_type(type)
     store_user("user.json", user)
     return jsonify({"result": "Success"})
 
-@app.route("/unsave/<place_id>")
+@app.route("/unsave/<place_id>", methods=["POST"])
 def remove_saved(place_id):
     user = _get_user()
     try:
@@ -160,7 +164,7 @@ def remove_saved(place_id):
     except KeyError as e:
         return jsonify({"result": "KeyError", "errorMessage": str(e)})
 
-@app.route("/unlike/<place_id>")
+@app.route("/unlike/<place_id>", methods=["POST"])
 def remove_liked(place_id):
     user = _get_user()
     try:
@@ -171,7 +175,7 @@ def remove_liked(place_id):
         return jsonify({"result": "KeyError", "errorMessage": str(e)})
 
 # because visit is a history
-@app.route("/unvisit/<index>")
+@app.route("/unvisit/<index>", methods=["POST"])
 def remove_visited(index):
     user = _get_user()
     try:
@@ -181,7 +185,7 @@ def remove_visited(index):
     except IndexError as e:
         return jsonify({"result": "KeyError", "errorMessage": str(e)})
 
-@app.route("/remove_preference/<type>")
+@app.route("/remove_preference/<type>", methods=["POST"])
 def remove_preferred_type(type):
     user = _get_user()
     try:
