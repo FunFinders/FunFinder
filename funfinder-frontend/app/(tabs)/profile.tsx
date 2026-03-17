@@ -1,9 +1,22 @@
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Ionicons } from '@expo/vector-icons'
 import { Slider } from '@rneui/themed';
 
+const API_URL = 'http://11.20.8.58:5000';
+
 const profile = () => {
+
+  // placeholder perfernces
+  const ALL_PREFERENCES = ['acai_shop', 'american_restaurant', 'asian_restaurant', 'athletic_field', 'atm', 'bagel_shop', 'bakery', 'bar', 'bar_and_grill', 'barbecue_restaurant',
+     'bowling_alley', 'brazilian_restaurant', 'breakfast_restaurant', 'brunch_restaurant', 'buffet_restaurant', 'cafe', 'cafeteria', 'candy_store', 'catering_service', 'chinese_restaurant',
+      'coffee_shop', 'confectionery', 'convenience_store', 'deli', 'dessert_restaurant', 'dessert_shop', 'diner', 'donut_shop', 'establishment', 'event_venue', 'fast_food_restaurant', 'finance', 'fine_dining_restaurant',
+       'food', 'food_court', 'food_delivery', 'food_store', 'french_restaurant', 'gas_station', 'golf_course', 'greek_restaurant', 'grocery_store', 'hamburger_restaurant', 'health', 'ice_cream_shop', 'indian_restaurant',
+        'internet_cafe', 'italian_restaurant', 'japanese_restaurant', 'juice_shop', 'korean_restaurant', 'liquor_store', 'meal_delivery', 'meal_takeaway', 'mediterranean_restaurant', 'mexican_restaurant', 'middle_eastern_restaurant',
+         'night_club', 'pizza_restaurant', 'point_of_interest', 'pub', 'public_bathroom', 'ramen_restaurant', 'restaurant', 'sandwich_shop', 'school', 'seafood_restaurant', 
+    'sporting_goods_store', 'sports_activity_location', 'sports_club', 'sports_coaching', 'sports_complex', 'steak_house', 'store', 'sushi_restaurant',
+     'swimming_pool', 'tea_house', 'thai_restaurant', 'turkish_restaurant', 'vegan_restaurant', 'vegetarian_restaurant', 'video_arcade', 'vietnamese_restaurant', 'wholesaler', 'wine_bar'];
+
   // state to track selected preferences
   const [selectedPreferences, setSelectedPreferences] = useState<string[]>([])
 
@@ -13,16 +26,23 @@ const profile = () => {
   // state to track price slider
   const [price, setPrice] = useState(3);
 
-  // toggle pref selection
-  const togglePreference = (preference: string) => {
-    if (selectedPreferences.includes(preference)) {
-      // remove if selected
-      setSelectedPreferences(selectedPreferences.filter(p => p !== preference))
-    } else {
-      // add
-      setSelectedPreferences([...selectedPreferences, preference])
+  useEffect(() => {
+      fetch(`${API_URL}/preferred_types`)
+          .then(res => res.json())
+          .then(data => setSelectedPreferences(data))
+          .catch(err => console.error('Error loading preferences:', err));
+  }, []);
+
+  // Toggle a preference: POST to add or remove on the backend
+  const togglePreference = (pref: string) => {
+      if (selectedPreferences.includes(pref)) {
+          fetch(`${API_URL}/remove_preference/${pref}`, { method: 'POST' });
+          setSelectedPreferences(selectedPreferences.filter(p => p !== pref));
+      } else {
+          fetch(`${API_URL}/add_preference/${pref}`, { method: 'POST' });
+          setSelectedPreferences([...selectedPreferences, pref]);
+      }
     }
-  }
 
   // helper func to check if pref selected
   const isSelected = (preference: string) => {
@@ -44,74 +64,32 @@ const profile = () => {
       <View style={styles.preferencesSection}>
         <Text style={styles.preferencesTitle}>Preferences</Text>
 
-        {/* pref buttons, copy paste for more, might make it so it only shows valid types? */}
+        {/* dynamically render a button for each type */}
         <View style={styles.preferencesContainer}>
-          <TouchableOpacity 
-            style={[
-              styles.preferenceButton,
-              isSelected('Restaurants') && styles.preferenceButtonSelected
-            ]}
-            onPress={() => togglePreference('Restaurants')}
-          >
-            <Text style={[
-              styles.preferenceText,
-              isSelected('Restaurants') && styles.preferenceTextSelected
-            ]}>
-              Restaurants
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={[
-              styles.preferenceButton,
-              isSelected('Sports') && styles.preferenceButtonSelected
-            ]}
-            onPress={() => togglePreference('Sports')}
-          >
-            <Text style={[
-              styles.preferenceText,
-              isSelected('Sports') && styles.preferenceTextSelected
-            ]}>
-              Sports
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={[
-              styles.preferenceButton,
-              isSelected('Recreation') && styles.preferenceButtonSelected
-            ]}
-            onPress={() => togglePreference('Recreation')}
-          >
-            <Text style={[
-              styles.preferenceText,
-              isSelected('Recreation') && styles.preferenceTextSelected
-            ]}>
-              Recreation
-            </Text>
-          </TouchableOpacity>
+            {ALL_PREFERENCES.map(pref => (
+                <TouchableOpacity
+                    key={pref}
+                    style={[styles.preferenceButton, isSelected(pref) && styles.preferenceButtonSelected]}
+                    onPress={() => togglePreference(pref)}
+                >
+                    <Text style={[styles.preferenceText, isSelected(pref) && styles.preferenceTextSelected]}>
+                        {pref.replace(/_/g, ' ')}
+                    </Text>
+                </TouchableOpacity>
+            ))}
         </View>
 
         <View style={styles.ratingSection}>
-          <Text style={styles.ratingTitle}>
-            Rating
-          </Text>
-          <Slider
-          value={rating}
-          onValueChange={setRating}
-          minimumValue={1}
-          maximumValue={5}
-          allowTouchTrack={true}
-          step={1}
-          trackStyle={styles.ratingTrack}
-          thumbStyle={styles.ratingThumb}
-          thumbProps={{
-          children: (
-            <Text style={styles.ratingThumbLabel}>
-              {rating}
-            </Text>
-          ),}}
-          />
+            <Text style={styles.ratingTitle}>Rating</Text>
+            <Slider
+                value={rating}
+                onValueChange={setRating}
+                minimumValue={1} maximumValue={5}
+                allowTouchTrack step={1}
+                trackStyle={styles.ratingTrack}
+                thumbStyle={styles.ratingThumb}
+                thumbProps={{ children: <Text style={styles.ratingThumbLabel}>{rating}</Text> }}
+            />
         </View>
 
         <View style={styles.ratingSection}>

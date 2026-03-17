@@ -18,7 +18,7 @@ def get_user(user_filename, user: UserModel):
 
 def store_user(user_filename, user: UserModel):
     with open(user_filename, 'w') as file:
-        json.dump(user.to_json(), file, indent=2)
+        dump(user.to_json(), file, indent=2)
 
     # user_json = {
     #     "id": user.id,
