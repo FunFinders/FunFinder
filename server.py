@@ -49,7 +49,7 @@ def get_places():
     places = [Place(x) for x in req]
 
     # get user preferences
-    user = _get_user()
+    user = _load_user()
     # if len(ACTIVE_USERS) == 0:
     #     user = UserModel()
     #     user = get_user("user.json", user)
@@ -70,14 +70,11 @@ def get_places():
             "id":place.id,
             "name":place.display_name,
             "rating":place.rating,
-            "priceLevel":place.price
+            "priceLevel":place.price.value if place.price else None
         })
 
     conn.close()
     return jsonify(places_json)
-
-if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=5000)
 
 
 @app.route("/place/<place_id>")
@@ -149,7 +146,7 @@ def add_visited(place_id):
 
 @app.route("/add_preference/<type>", methods=["POST"])
 def add_preferred_type(type):
-    user = _get_user()
+    user = _load_user()
     user.add_preferred_type(type)
     store_user("user.json", user)
     return jsonify({"result": "Success"})
@@ -187,7 +184,7 @@ def remove_visited(index):
 
 @app.route("/remove_preference/<type>", methods=["POST"])
 def remove_preferred_type(type):
-    user = _get_user()
+    user = _load_user()
     try:
         user.remove_preferred_type(type)
         store_user("user.json", user)
@@ -195,6 +192,13 @@ def remove_preferred_type(type):
     except KeyError as e:
         return jsonify({"result": "KeyError", "errorMessage": str(e)})
 
+@app.route("/preferred_types", methods=["GET"])
+def get_preferred_types():
+    user = _load_user()
+    return jsonify(list(user.preferred_types))
+
+if __name__ == "__main__":
+    app.run(debug=True, host="0.0.0.0", port=5000)
 # @app.route("/...")
 # def get_recommendation
 
