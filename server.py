@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS  # Add this import
-from src.data import UserModel, Place
+from src.data import UserModel, Place, Coordinates
 from src.recommendation import rank_places
 from src.user import get_user, store_user
 from time import time
@@ -83,8 +83,12 @@ def get_places():
     # else:
     #     user = ACTIVE_USERS["123"]
 
+    lat = request.args.get("lat")
+    lng = request.args.get("lng")
+    location = Coordinates(latitude=float(lat), longitude=float(lng)) if lat and lng else None
+    
     # rank it baby
-    ranking = rank_places(places, user)
+    ranking = rank_places(places, user, location)
     ranking.sort(key=lambda x: x[0], reverse=True)
     
     # going to return top 20 places, but can change later
@@ -136,7 +140,7 @@ def create_user():
 
 @app.route("/save/<place_id>", methods=["POST"])
 def add_saved(place_id):
-    user = _get_user()
+    user = _load_user()
     try:
         conn = sqlite3.connect("places.db")
         place = src.database.get_place(conn, place_id)
@@ -148,7 +152,7 @@ def add_saved(place_id):
 
 @app.route("/like/<place_id>", methods=["POST"])
 def add_liked(place_id):
-    user = _get_user()
+    user = _load_user()
     try:
         conn = sqlite3.connect("places.db")
         place = src.database.get_place(conn, place_id)
@@ -160,7 +164,7 @@ def add_liked(place_id):
 
 @app.route("/visit/<place_id>", methods=["POST"])
 def add_visited(place_id):
-    user = _get_user()
+    user = _load_user()
     try:
         conn = sqlite3.connect("places.db")
         place = src.database.get_place(conn, place_id)
@@ -179,31 +183,32 @@ def add_preferred_type(type):
 
 @app.route("/unsave/<place_id>", methods=["POST"])
 def remove_saved(place_id):
-    user = _get_user()
+    user = _load_user()
     try:
         user.remove_saved(place_id)
-        store_user("user.json")
+        store_user("user.json", user)
         return jsonify({"result": "Success"})
     except KeyError as e:
         return jsonify({"result": "KeyError", "errorMessage": str(e)})
 
 @app.route("/unlike/<place_id>", methods=["POST"])
 def remove_liked(place_id):
-    user = _get_user()
+    user = _load_user()
     try:
         user.remove_liked_place(place_id)
-        store_user("user.json")
+        store_user("user.json", user)
         return jsonify({"result": "Success"})
     except KeyError as e:
         return jsonify({"result": "KeyError", "errorMessage": str(e)})
 
 # because visit is a history
-@app.route("/unvisit/<index>", methods=["POST"])
-def remove_visited(index):
-    user = _get_user()
+@app.route("/unvisit/<place_id>", methods=["POST"])
+def remove_visited(place_id):
+    user = _load_user()
     try:
+        index = next(i for i, p in enumerate(user.visited) if p.id == place_id)
         user.remove_visited(index)
-        store_user("user.json")
+        store_user("user.json", user)
         return jsonify({"result": "Success"})
     except IndexError as e:
         return jsonify({"result": "KeyError", "errorMessage": str(e)})
