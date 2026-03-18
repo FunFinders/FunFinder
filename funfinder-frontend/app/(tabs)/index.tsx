@@ -13,7 +13,7 @@ const API_URL = 'http://127.0.0.1:5000';
 
 export default function Index(){
     const [search, setSearch] = useState("");
-    const [test, setText] = useState("Search something to change this text!!");
+    const [searchQuery, setSearchQuery] = useState("");
     const [places, setPlaces] = useState([]);
 
 
@@ -21,9 +21,9 @@ export default function Index(){
         setSearch(search);
     };
 
-    const updateText = (e: { nativeEvent: { text: any; }; }) => {
+    const makeQuery = (e: { nativeEvent: { text: any; }; }) => {
         const submittedText = e.nativeEvent.text;
-        setText(submittedText);
+        setSearchQuery(submittedText);
     }
 
     const [location, setLocation] = useState<Location.LocationObject | null>(null);
@@ -36,13 +36,18 @@ export default function Index(){
             if (location) {
                 url += `?lat=${location.coords.latitude}&lng=${location.coords.longitude}`;
             }
+            if (search && !location) {
+                url += `?name=${searchQuery}`;
+            }
+            else {
+                url += `&name=${searchQuery}`;
+            }
             fetch(url)
                 .then(response => response.json())
                 .then(data => setPlaces(data))
                 .catch(error => console.error('Error fetching places:', error));
-        }, [location])  // re-runs when location loads
+        }, [location,searchQuery])  // re-runs when location loads
     );
-
 
     // gets location data
     useEffect(() => {
@@ -91,7 +96,7 @@ export default function Index(){
                 placeholder="Type Here..."
                 onChangeText={updateSearch}
                 value={search}
-                onSubmitEditing={updateText}
+                onSubmitEditing={makeQuery}
                 
                 // Styles
                 containerStyle={styles.searchContainer}
@@ -107,7 +112,7 @@ export default function Index(){
                 contentContainerStyle={styles.listContent}
                 showsVerticalScrollIndicator={false}
             />
-            <Text>{test}</Text>
+            <Text>{searchQuery}</Text>
             <Text>{text}</Text>
         </SafeAreaView>
     );

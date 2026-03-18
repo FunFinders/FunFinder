@@ -37,24 +37,20 @@ const saved = () => {
     fetchPlaces();
   }, []));
 
-  const handlePlacePress = (placeId: string) => {
-    console.log('Place pressed:', placeId);
-  };
-
   const renderPlaceCard = ({ item }: any) => (
     <PlaceCard
         id={item.id}
         name={item.name}
         rating={item.rating}
         priceLevel={item.priceLevel}
-        onPress={() => {handlePlacePress(item.id); fetchPlaces();}}
+        onPress={fetchPlaces}
         savedInit={true}
     />
 );
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Explore</Text>
+      <Text style={styles.title}>Saved</Text>
       <FlatList
                 data={places}
                 renderItem={renderPlaceCard}
