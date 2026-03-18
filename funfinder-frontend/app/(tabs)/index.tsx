@@ -33,11 +33,15 @@ export default function Index(){
     // fetch from backend
     useFocusEffect(
         useCallback(() => {
-            fetch(`${API_URL}/places`)
+            let url = `${API_URL}/places`;
+            if (location) {
+                url += `?lat=${location.coords.latitude}&lng=${location.coords.longitude}`;
+            }
+            fetch(url)
                 .then(response => response.json())
                 .then(data => setPlaces(data))
                 .catch(error => console.error('Error fetching places:', error));
-        }, [])
+        }, [location])  // re-runs when location loads
     );
 
 
