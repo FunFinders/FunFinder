@@ -45,12 +45,15 @@ def filter_price(min=0, max=4):
 def filter_type_disjunctive(types: list[str] | str):
     if type(types) is str:
         return f"instr(place_types, {types})"
-    return " OR ".join((f"instr(place_types, \"{tag}\") > 0" for tag in types))
+    return " OR ".join((f"instr(place_types, \'{tag}\') > 0" for tag in types))
 
 def filter_type_conjunctive(types: list[str] | str):
     if type(types) is str:
         return f"instr(place_types, {types})"
-    return " AND ".join((f"instr(place_types, \"{tag}\") > 0" for tag in types))
+    return " AND ".join((f"instr(place_types, \'{tag}\') > 0" for tag in types))
+
+def filter_name():
+    return "instr(lower(display_name), lower(?)) > 0"
 
 def filter_rating(min: float=1.0, max: float=5.0):
     if min > max:

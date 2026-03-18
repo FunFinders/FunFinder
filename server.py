@@ -29,7 +29,7 @@ def _get_user(id="123"):
 
 def _get_query() -> list[str]:
     args = request.args
-
+    arguments = []
     min_rating = float(args.get("min_rating", 1.0))
     max_rating = float(args.get("max_rating", 5.0))
 
@@ -46,8 +46,16 @@ def _get_query() -> list[str]:
         tag_list = tags.split(",")
         tag_filter = src.database.filter_type_disjunctive(tag_list)
 
-    filters = [rating_filter, price_filter, tag_filter]
-    return filters
+    search = args.get("name", "")
+    if search:
+        search_filter = src.database.filter_name()
+        arguments.append(search)
+    else:
+        search_filter = ""
+
+    filters = [rating_filter, price_filter, tag_filter, search_filter]
+    # return filters
+    return filters, arguments
 
 
 app = Flask(__name__)
@@ -64,14 +72,14 @@ def get_places():
 
     # create the query from the filters
     base_query = src.database.search_places()
-    query_calls = _get_query()
+    query_calls, arguments = _get_query()
     if any(query_calls):
         search_query = base_query + " WHERE " + " AND ".join((f"({call})" for call in query_calls if call != ""))
     else:
         search_query = base_query    
 
     # list of candidate places
-    req = cursor.execute(search_query)
+    req = cursor.execute(search_query, arguments)
     places = (Place(x) for x in req)
 
     # get user preferences
