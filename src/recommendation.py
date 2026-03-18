@@ -31,7 +31,7 @@ def rank_liked(place: Place, user: UserModel, location: Coordinates = None):
             weight += WEIGHT_PRIMARY
         elif place_type in type_occurs:
             weight += WEIGHT_SUBTYPE
-    return (weight, place)
+    return weight
 
 # primary type gets the most weight, followed by other place types; averaged
 # rating scales weight
