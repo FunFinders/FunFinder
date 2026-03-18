@@ -9,11 +9,12 @@ interface PlaceCardProps {
     rating: number;
     priceLevel: number;
     onPress: () => void;
+    savedInit?: boolean;
 }
 
 
-const PlaceCard = ({ id, name, rating, priceLevel, onPress }: PlaceCardProps) => {
-    const [saved, setSaved] = useState(false);
+const PlaceCard = ({ id, name, rating, priceLevel, onPress, savedInit=false }: PlaceCardProps) => {
+    const [saved, setSaved] = useState(savedInit);
     const [liked, setLiked] = useState(false);
     const [visited, setVisited] = useState(false);
 
