@@ -1,8 +1,9 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS  # Add this import
 from src.data import UserModel, Place
 from src.recommendation import rank_places
 from src.user import get_user, store_user
+from time import time
 import src.database
 import sqlite3
 
@@ -26,10 +27,31 @@ def _get_user(id="123"):
         ACTIVE_USERS[user.id] = user
         return user
 
+def _get_query() -> list[str]:
+    args = request.args
+
+    min_rating = args.get("min_rating", 1.0)
+    max_rating = args.get("max_rating", 5.0)
+
+    rating_filter = src.database.filter_rating(min_rating, max_rating)
+
+    min_price = args.get("min_price", 0)
+    max_price = args.get("max_price", 4)
+
+    price_filter = src.database.filter_price(min_price, max_price)
+
+    tags = args.get("tags", "")
+    tag_filter = ""
+    if tags:
+        tag_list = tags.split(",")
+        tag_filter = src.database.filter_type_disjunctive(tag_list)
+
+    filters = [rating_filter, price_filter, tag_filter]
+    return filters
+
 
 app = Flask(__name__)
 CORS(app)
-# TODO: add ways to filter places
 @app.route("/places", methods=['GET'])
 def get_places():
     # The main group of places to display to the user. Contains basic information
@@ -41,11 +63,15 @@ def get_places():
     cursor = conn.cursor()
 
     # create the query from the filters
-    # for rating, add small deviation to provided parameters to allow small exploration
-    # 
+    base_query = src.database.search_places()
+    query_calls = _get_query()
+    if any(query_calls):
+        search_query = base_query + " WHERE " + " AND ".join((f"({call})" for call in query_calls if call != ""))
+    else:
+        search_query = base_query    
 
     # list of places
-    req = cursor.execute("select * from places")
+    req = cursor.execute(search_query)
     places = [Place(x) for x in req]
 
     # get user preferences
@@ -70,7 +96,7 @@ def get_places():
             "id":place.id,
             "name":place.display_name,
             "rating":place.rating,
-            "priceLevel":place.price
+            "priceLevel":place.price.value if place.price else None
         })
 
     conn.close()
