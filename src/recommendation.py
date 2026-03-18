@@ -13,7 +13,7 @@ def weight_distance(place: Place, origin: Coordinates):
     if origin is None:  # can't weight
         return 0
     distance = geopy.distance.distance(place.coordinates, origin).km
-    return (tanh(distance) + 1) * 2  # some smoothing function
+    return 2 - (tanh(distance) + 1)  # some smoothing function
 
 # like rank_visited, but for liked places
 def rank_liked(place: Place, user: UserModel, location: Coordinates = None):
