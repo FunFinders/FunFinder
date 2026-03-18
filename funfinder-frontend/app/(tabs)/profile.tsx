@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react'
 import { Ionicons } from '@expo/vector-icons'
 import { Slider } from '@rneui/themed';
 
-const API_URL = 'http://11.20.8.58:5000';
+const API_URL = 'http://127.0.0.1:5000';
 
 const profile = () => {
 
