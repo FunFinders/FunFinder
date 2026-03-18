@@ -223,6 +223,21 @@ def get_preferred_types():
     user = _load_user()
     return jsonify(list(user.preferred_types))
 
+@app.get("/liked/")
+def get_liked_places():
+    user = _load_user()
+    return jsonify([place.to_json() for place in user.liked_places])
+
+@app.get("/saved/")
+def get_saved_places():
+    user = _load_user()
+    return jsonify([place.to_json() for place in user.saved])
+
+@app.get("/visited/")
+def get_visited_places():
+    user = _load_user()
+    return jsonify([place.to_json() for place in user.visited])
+
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5000)
 # @app.route("/...")
