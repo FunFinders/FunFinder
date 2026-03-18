@@ -149,14 +149,14 @@ class UserModel:
         for i, place in enumerate(self.liked_places):
             if place.id == place_id:
                 self.liked_places.pop(i)
-                break
+                return
         raise KeyError(place_id)
 
     def remove_saved(self, place_id):
         for i, place in enumerate(self.saved):
             if place.id == place_id:
                 self.saved.pop(i)
-                break
+                return
         raise KeyError(place_id)
         
     def to_json(self) -> dict:
