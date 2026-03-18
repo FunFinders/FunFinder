@@ -1,15 +1,14 @@
-import { Text, StyleSheet, Platform, FlatList } from 'react-native';
-import { SearchBar } from '@rneui/themed';
-import { SetStateAction, useState, useEffect, use } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { useCallback } from 'react';
+import { SearchBar } from '@rneui/themed';
 import * as Location from 'expo-location';
+import { SetStateAction, useCallback, useEffect, useState } from 'react';
+import { FlatList, Platform, StyleSheet, Text } from 'react-native';
 // only renders to areas of the screen that are in view, so no need for padding in search bar
 import { SafeAreaView } from 'react-native-safe-area-context';
 import PlaceCard from '../components/placecards';
 
 
-const API_URL = 'http://11.20.8.58:5000';
+const API_URL = 'http://127.0.0.1:5000';
 
 
 export default function Index(){

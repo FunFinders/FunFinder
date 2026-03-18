@@ -1,7 +1,7 @@
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
-import React, { useState } from 'react'
+import React, { useState } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-const API_URL = 'http://11.20.8.58:5000';
+const API_URL = 'http://127.0.0.1:5000';
 
 interface PlaceCardProps {
     id: string;
