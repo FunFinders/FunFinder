@@ -30,13 +30,13 @@ def _get_user(id="123"):
 def _get_query() -> list[str]:
     args = request.args
 
-    min_rating = args.get("min_rating", 1.0)
-    max_rating = args.get("max_rating", 5.0)
+    min_rating = float(args.get("min_rating", 1.0))
+    max_rating = float(args.get("max_rating", 5.0))
 
     rating_filter = src.database.filter_rating(min_rating, max_rating)
 
-    min_price = args.get("min_price", 0)
-    max_price = args.get("max_price", 4)
+    min_price = int(args.get("min_price", 0))
+    max_price = int(args.get("max_price", 4))
 
     price_filter = src.database.filter_price(min_price, max_price)
 
@@ -70,9 +70,9 @@ def get_places():
     else:
         search_query = base_query    
 
-    # list of places
+    # list of candidate places
     req = cursor.execute(search_query)
-    places = [Place(x) for x in req]
+    places = (Place(x) for x in req)
 
     # get user preferences
     user = _get_user()
