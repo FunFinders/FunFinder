@@ -1,13 +1,15 @@
 import { Text, StyleSheet, Platform, FlatList } from 'react-native';
 import { SearchBar } from '@rneui/themed';
 import { SetStateAction, useState, useEffect, use } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
 import * as Location from 'expo-location';
 // only renders to areas of the screen that are in view, so no need for padding in search bar
 import { SafeAreaView } from 'react-native-safe-area-context';
 import PlaceCard from '../components/placecards';
 
 
-const API_URL = 'http://11.20.8.35:5000';
+const API_URL = 'http://11.20.8.58:5000';
 
 
 export default function Index(){
@@ -29,18 +31,14 @@ export default function Index(){
     const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
     // fetch from backend
-    useEffect(() => {
-        fetch(`${API_URL}/places`)
-            .then(response => response.json())
-            .then(data => {
-                setPlaces(data);
-                console.log('Fetched places:', data);
-
-            })
-            .catch(error => {
-                console.error('Error fetching places:', error);
-            });
-    }, []);
+    useFocusEffect(
+        useCallback(() => {
+            fetch(`${API_URL}/places`)
+                .then(response => response.json())
+                .then(data => setPlaces(data))
+                .catch(error => console.error('Error fetching places:', error));
+        }, [])
+    );
 
 
     // gets location data
