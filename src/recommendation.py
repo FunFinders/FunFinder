@@ -41,10 +41,8 @@ def rank_rule(places: list[Place], user: UserModel, location: Coordinates = None
     for place in places:
         weight = 0
         # add rating instead?
-        if place.rating is None:
-            scale = 1
-        else:
-            scale = log(place.rating + 1)  # product after the fact
+        if place.rating is not None:
+            weight = log(place.rating + 1)  # product after the fact
         for type in user.preferred_types:
             if type in place.types:
                 weight += WEIGHT_SUBTYPE / len(place.types)  # little softer + average
@@ -53,7 +51,7 @@ def rank_rule(places: list[Place], user: UserModel, location: Coordinates = None
             elif type == place.primary_type:
                 weight += WEIGHT_PRIMARY
         weight += rank_liked(place, user, location)
-        weight *= scale
+        # weight *= scale
         weight += weight_distance(place, location)
         place_weights.append((weight, place))
 
@@ -64,6 +62,7 @@ def rank_rule(places: list[Place], user: UserModel, location: Coordinates = None
 # primary type gets boosted weight
 # multiply by ranking, scaled by log
 # add distance weight
+# TODO: add preference weighting
 def rank_history(places: list[Place], user: UserModel, location: Coordinates = None):
     total_types = 0
     type_occurs = defaultdict(int)
@@ -88,7 +87,8 @@ def rank_history(places: list[Place], user: UserModel, location: Coordinates = N
         
         weight += rank_liked(place, user, location)
         if place.rating is not None:
-            weight *= log(place.rating + 1)  # product after the fact
+            # weight *= log(place.rating + 1)  # product after the fact
+            weight += log(place.rating + 1)  # product after the fact
         weight += weight_distance(place, location)
         place_weights.append((weight, place))
 
