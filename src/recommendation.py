@@ -28,9 +28,9 @@ def rank_liked(place: Place, user: UserModel, location: Coordinates = None):
     weight = 0
     for place_type in place.types:
         if place_type is place.primary_type and place_type in type_occurs:
-            weight += WEIGHT_PRIMARY
+            weight += WEIGHT_PRIMARY * type_occurs[place_type]
         elif place_type in type_occurs:
-            weight += WEIGHT_SUBTYPE
+            weight += WEIGHT_SUBTYPE * type_occurs[place_type]
     return weight
 
 # primary type gets the most weight, followed by other place types; averaged
@@ -44,12 +44,12 @@ def rank_rule(places: list[Place], user: UserModel, location: Coordinates = None
         if place.rating is not None:
             weight = log(place.rating + 1)  # product after the fact
         for type in user.preferred_types:
-            if type in place.types:
-                weight += WEIGHT_SUBTYPE / len(place.types)  # little softer + average
+            if type == place.primary_type:
+                weight += WEIGHT_PRIMARY / len(place.types)
                 # norm by number of types in the place, more tags a place has may be more diluted?
                 # weight += WEIGHT_SUBTYPE / (1 + len(user.preferred_types))  # little softer + average
-            elif type == place.primary_type:
-                weight += WEIGHT_PRIMARY
+            elif type in place.types:
+                weight += WEIGHT_SUBTYPE / len(place.types)  # little softer + average
         weight += rank_liked(place, user, location)
         # weight *= scale
         weight += weight_distance(place, location)
