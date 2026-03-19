@@ -1,9 +1,24 @@
 {
   "id": "123",
-  "saved": [],
-  "liked_places": [],
+  "saved": ["ChIJp3scbeDf3IARVGgin9Y0b-I", "ChIJg7Dg28zf3IARtaMs0gBHnGI", "ChIJYTMquOff3IAR1zMWgaOC_JA"],
+  "liked_places": ["ChIJLUsBAp3e3IARYq0lCrW8HiY", "ChIJV67QLADd3IARL--SCRT0Ths", "ChIJ3bk5HkTd3IARsIj1ahDiDtQ", "ChIJp3scbeDf3IARVGgin9Y0b-I", "ChIJg7Dg28zf3IARtaMs0gBHnGI"],
   "preferred_types": [
-    "chinese_restaurant"
+    "fast_food_restaurant", "cafe", "asian_restaurant", "vietnamese_restaurant"
   ],
-  "visited": []
+  "visited": ["ChIJV67QLADd3IARL--SCRT0Ths", 
+              "ChIJp3scbeDf3IARVGgin9Y0b-I", 
+              "ChIJf5iupVfd3IAR9psD1op5aQg", 
+              "ChIJp3scbeDf3IARVGgin9Y0b-I", 
+              "ChIJ3bk5HkTd3IARsIj1ahDiDtQ", 
+              "ChIJg7Dg28zf3IARtaMs0gBHnGI", 
+              "ChIJGYmtrKnf3IARC7S_tfTW1F4", 
+              "ChIJS5SQGADd3IARqOqk4sbIGdk", 
+              "ChIJYTMquOff3IAR1zMWgaOC_JA", 
+              "ChIJp3scbeDf3IARVGgin9Y0b-I", 
+              "ChIJkTjQmzbd3IARzQDI4acXB38", 
+              "ChIJl0qV2xzd3IARdq449TOE_7c", 
+              "ChIJg7Dg28zf3IARtaMs0gBHnGI", 
+              "ChIJLUsBAp3e3IARYq0lCrW8HiY", 
+              "ChIJg7Dg28zf3IARtaMs0gBHnGI"
+            ]
 }
